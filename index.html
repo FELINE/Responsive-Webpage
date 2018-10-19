@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>CPSC 1030 Project Milestone nº2</title>
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+
+    <script type="text/javascript">
+        // The javascript here will dynamically update the webpage, 
+        // insert history data as well as changing the status indicator
+        $(document).ready(function () {
+            websocket = new WebSocket("ws://52.8.142.239:8443");
+            websocket.onopen = function (evt) {
+                console.log(evt)
+            };
+            websocket.onclose = function (evt) {
+                console.log(evt)
+            };
+            var messageNum = 0;
+            websocket.onmessage = function (evt) {
+                console.log(evt);
+                $.get("http://52.8.142.239/map", function (data, status) {
+                    console.log(data);
+
+                    $("#googlemap").attr("src", "https://www.google.com/maps/embed/v1/place?key=AIzaSyBqqdGsaT_t3kn1GaPGFxOmcKh5u7xWQgw&zoom=8&q=" + data[1] + ',' + data[0]);
+
+                    $("#status_display")
+                        .addClass("location_change")
+                        .removeClass("location_not_change");
+
+                    $("#history_display")
+                        .prepend("<div class='history_row_" + (messageNum++ % 2) + "'>" + data + "</div>");
+
+                    setTimeout(function () {
+                        $("#status_display")
+                            .addClass("location_not_change")
+                            .removeClass("location_change");
+                    }, 1000);
+                });
+            };
+            websocket.onerror = function (evt) {
+                console.log(evt)
+            };
+        });
+    </script>
+
+    <style type="text/css">
+        /* Some css classes that are inserted by the javascript */
+        /* The history_row_* classes are inserted into the history_display
+             div.  The classes alternate so we can have different style for
+             each row, creating a nice visual effect.
+            */
+        
+        .history_row_0 {
+            background-color: #cccccc;
+        }
+        
+        .history_row_1 {
+            background-color: #dddddd;
+        }
+        /* Every time a location changes.  It will change the status_display
+             div so that when an update happens, the class will change to 
+             location_change, and change to location_not_change after 1 second.
+             */
+        
+        .location_change {
+            background-color: white;
+        }
+        
+        .location_not_change {}
+        
+        .panel-footer {
+            background-color: #333;
+            color: #dddddd;
+            text-align: center;
+        }
+        
+        #googlemap {
+            width: 100%;
+            margin: auto;
+            background-color: #cccccc;
+            border: 1px solid #dddddd;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <nav class="navbar navbar-inverse">
+                <div class="container-fluid">
+                    <div class="navbar-header">
+                        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                        </button>
+                        <p class="navbar-text">Tracking Dashboard</p>
+                    </div>
+                    <div class="collapse navbar-collapse" id="myNavbar">
+                        <ul class="nav navbar-nav nav-pills">
+                            <li class="small active"><a data-toggle="pill" href=#intro_display>Introduction</a></li>
+                            <li id="status_display" class="location_not_change small"><a data-toggle="pill" href="#map_display">Live map</a>
+                            </li>
+                            <li class="small"><a data-toggle="pill" href="#history_display">History</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+            <img src="Inner-Banner.jpg" class="img-responsive" alt="banner">
+
+
+            <div class="tab-content">
+                <div class=" jumbotron well tab-pane fade in active" id="intro_display">
+                    <p>
+                        This is a bare bones HTML page that connects with a backend server to simulate real-time location tracking. When the webpage receives a notification from the server that a location has changed, the status is changed for 1 second, and the map location is also changed.
+                    </p>
+                    <p>
+                        Your job is to make this site looks great by using CSS and include appropriate graphics/icons. You are free to use any tools or frameworks that is familiar to you.
+                    </p>
+                </div>
+
+                <div class="tab-pane fade jumbotron" id="map_display">
+                    <iframe id="googlemap" width="300" height="240" src="https://www.google.com/maps/embed/v1/place?key=AIzaSyBqqdGsaT_t3kn1GaPGFxOmcKh5u7xWQgw&q=49,-122&zoom=8" allowfullscreen>
+                    </iframe>
+                </div>
+
+                <div class="well tab-pane fade" id="history_display">
+                    <!-- location history will be added dynamically -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="panel-footer">
+        <footer>CPSC 1030 2nd Milestone - Tomas Gonzalez ID: 100266942 - Instructor Jason Madar - Langara College 2016</footer>
+    </div>
+</body>
+
+</html>
